@@ -128,7 +128,33 @@ export async function updatePerk(req, res, next) {
     res.json({ perk: doc });
   } catch (err) { next(err); }
 }
+// TODO 2: Implement delete functionality with a window confirm dialog 
+// TODO 1: Implement delete a perk by ID
 // TODO 1: Implement delete a perk by ID
 export async function deletePerk(req, res, next) {
- 
+
+  try {
+
+    const id = req.params.id;
+
+    const perk = await Perk.findById(id);
+
+    if (!perk) return res.status(404).json({ message: 'Perk not found' });
+
+
+
+    const isOwner = perk.createdBy?.toString() === req.user?.id;
+
+    const isAdmin = req.user?.role === 'admin';
+
+    if (!isOwner && !isAdmin) return res.status(403).json({ message: 'Forbidden' });
+
+
+
+    await Perk.findByIdAndDelete(id);
+
+    return res.json({ message: 'Perk deleted' });
+
+  } catch (err) { next(err); }
+
 }
